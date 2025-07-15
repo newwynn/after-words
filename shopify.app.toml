@@ -3,7 +3,7 @@
 client_id = "49baebefe8b60e47881980b264f3909d"
 name = "after-words"
 handle = "after-words"
-application_url = "https://aerospace-orange-dubai-waiting.trycloudflare.com"
+application_url = "https://fw-lover-dear-warranty.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,9 +27,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://aerospace-orange-dubai-waiting.trycloudflare.com/auth/callback",
-  "https://aerospace-orange-dubai-waiting.trycloudflare.com/auth/shopify/callback",
-  "https://aerospace-orange-dubai-waiting.trycloudflare.com/api/auth/callback"
+  "https://fw-lover-dear-warranty.trycloudflare.com/auth/callback",
+  "https://fw-lover-dear-warranty.trycloudflare.com/auth/shopify/callback",
+  "https://fw-lover-dear-warranty.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
