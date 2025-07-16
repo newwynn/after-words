@@ -1,5 +1,14 @@
-import React, { useEffect } from "react";
-import { Layout, FormLayout, TextField, LegacyCard, Card } from "@shopify/polaris";
+import React, {  useCallback, useState } from "react";
+import {
+  Layout,
+  FormLayout,
+  TextField,
+  LegacyCard,
+  Card,
+  DropZone,
+  Banner,
+  List,
+} from "@shopify/polaris";
 
 interface ModalAddStoryProps {
   onShowResourcePicker: () => void;
@@ -16,9 +25,23 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
   const [productName, setProductName] = React.useState("Product Name");
   const [storyTitle, setStoryTitle] = React.useState("Story Title");
   const [accountEmail, setAccountEmail] = React.useState("Account Email");
-  const [thumbnail, setThumbnail] = React.useState("");
+  const [storyDescription, setStoryDescription] = React.useState("Story Description");
+  const [thumbnail, setThumbnail] = useState<string>("");
+  const [rejectedFiles, setRejectedFiles] = useState<File[]>([]);
+  const hasError = rejectedFiles.length > 0;
 
-  const handleSave = () => {
+  const handleDrop = useCallback(
+    (_droppedFiles: File[], acceptedFiles: File[], rejectedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+        setThumbnail(window.URL.createObjectURL(file));
+      }
+      setRejectedFiles(rejectedFiles);
+    },
+    []
+  );
+
+  const handleSave = async() => {
     console.log(productName, storyTitle, accountEmail, thumbnail);
     if (productName && storyTitle && accountEmail) {
       onAddStory({
@@ -32,6 +55,20 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
       setAccountEmail("");
       setThumbnail("");
       onClose();
+
+
+      await fetch("/api/stories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productName,
+          storyTitle,
+          accountEmail,
+          thumbnail,
+        }),
+      }); 
     } else {
       alert("Please fill all fields.");
     }
@@ -52,14 +89,44 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
         <Layout>
           <Layout.Section variant="oneThird">
             <Card>
+              {thumbnail ? (
                 <img
-                style={{
+                  style={{
                     height: "200px",
-                    width: "200px",
-                }}
-                src={thumbnail}
-                alt="Product"
+                    width: "100%",
+                    objectFit: 'cover' as const,
+                    display: 'block'
+                  }}
+                  src={thumbnail}
+                  alt="Product"
                 />
+              ) : (
+                <div>
+                  <DropZone
+                    accept="image/*"
+                    type="image"
+                    onDrop={handleDrop}
+                    allowMultiple={false}
+                  >
+                    <DropZone.FileUpload />
+                    
+                  </DropZone>
+                  {hasError && (
+                    <Banner
+                      title="The following images couldn't be uploaded:"
+                      tone="critical"
+                    >
+                      <List type="bullet">
+                        {rejectedFiles.map((file, index) => (
+                          <List.Item key={index}>
+                            {`"${file.name}" is not supported. File type must be .gif, .jpg, .png or .svg.`}
+                          </List.Item>
+                        ))}
+                      </List>
+                    </Banner>
+                  )}
+                </div>
+              )}
             </Card>
           </Layout.Section>
           <Layout.Section variant="oneThird">
@@ -83,6 +150,12 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
                   value={accountEmail}
                   onChange={setAccountEmail}
                   autoComplete="email"
+                />
+                <TextField
+                  label="Story description"
+                  value={storyDescription}
+                  onChange={setStoryDescription}
+                  autoComplete="off"
                 />
               </FormLayout>
             </LegacyCard>
