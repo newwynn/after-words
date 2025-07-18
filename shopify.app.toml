@@ -3,7 +3,7 @@
 client_id = "49baebefe8b60e47881980b264f3909d"
 name = "after-words"
 handle = "after-words"
-application_url = "https://ur-diary-discusses-reserve.trycloudflare.com"
+application_url = "https://insider-jersey-stereo-nova.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,9 +27,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://ur-diary-discusses-reserve.trycloudflare.com/auth/callback",
-  "https://ur-diary-discusses-reserve.trycloudflare.com/auth/shopify/callback",
-  "https://ur-diary-discusses-reserve.trycloudflare.com/api/auth/callback"
+  "https://insider-jersey-stereo-nova.trycloudflare.com/auth/callback",
+  "https://insider-jersey-stereo-nova.trycloudflare.com/auth/shopify/callback",
+  "https://insider-jersey-stereo-nova.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

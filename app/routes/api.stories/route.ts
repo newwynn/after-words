@@ -2,21 +2,26 @@ import { json, type ActionFunctionArgs } from "@remix-run/node";
 import prisma from "../../../utils/prisma.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const data = await request.json();
-
   try {
-    const { productId, shop, storyTitle, description } = data;
+    const { productId, shop, storyTitle, description } = await request.json();
 
     if (!productId || !shop || !storyTitle || !description) {
-      throw new Error("Missing required fields");
+      return json(
+        { success: false, error: "Missing required fields: productId, shop, storyTitle, description" },
+        { status: 400 }
+      );
     }
 
-    // Save story to DB
-    const story = await (prisma as any).story.create({ data: { productId, shop, storyTitle, description } });
+    const story = await (prisma as any).story.create({
+      data: { productId, shop, storyTitle, description },
+    });
 
-    return json({ success: true, data: story });
+    return json({ success: true, data: story }, { status: 201 });
   } catch (error: any) {
-    console.error("Error saving story", error);
-    return json({ success: false, error: error.message ?? "Server Error" }, { status: 500 });
+    console.error("Error saving story:", error);
+    return json(
+      { success: false, error: error?.message || "Server Error" },
+      { status: 500 }
+    );
   }
 };
