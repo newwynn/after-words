@@ -30,13 +30,36 @@ import {
  * optionally allows data to be stored on the client for use in the `Render`
  * extension point.
  */
- extend("Checkout::PostPurchase::ShouldRender", async ({ storage }) => {
+ extend("Checkout::PostPurchase::ShouldRender", async ({ storage, inputData }) => {
   const initialState = await getRenderData();
   const render = true;
 
+  const lineItems = inputData?.initialPurchase?.lineItems;
+  const shop = inputData?.shop;
+  const productIds = lineItems?.map((item) => item.product.id);
+  const productImg = lineItems?.map((item) => item.product.image);
+
+  const stories = await fetch(
+    `https://ur-diary-discusses-reserve.trycloudflare.com/api/stories?productId=${productIds.join(",")}&shop=${shop?.domain}`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${inputData.token}`,
+        "Content-Type": "application/json"
+      }
+    }
+  );
+  
+  if (!stories.ok) {
+    console.error("Failed to fetch stories:", await stories.text());
+    return { render: false };
+  }
+  
+  const storiesData = await stories.json();
+
   if (render) {
     // Saves initial state, provided to `Render` via `storage.initialData`
-    await storage.update(initialState);
+    await storage.update(storiesData);
   }
 
   return {
@@ -63,6 +86,9 @@ render("Checkout::PostPurchase::Render", App);
 // Top-level React component
 export function App({ extensionPoint, storage }) {
   const initialState = storage.initialData;
+  const story = initialState?.data;
+
+  console.log(initialState)
 
   return (
       <BlockStack spacing="loose">
@@ -84,10 +110,11 @@ export function App({ extensionPoint, storage }) {
           <View />
           <BlockStack spacing="xloose">
           <TextContainer>
-              <Heading>Post-purchase extension</Heading>
+              <Heading>{story.storyTitle}</Heading>
               <TextBlock>
-              Here you can cross-sell other products, request a product review
-              based on a previous purchase, and much more.
+                {
+                  story.description
+                }
               </TextBlock>
           </TextContainer>
           <Button
