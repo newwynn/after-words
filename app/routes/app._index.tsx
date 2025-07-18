@@ -107,7 +107,7 @@ export default function Index(): JSX.Element {
                   Start by selecting a product and writing your first
                   post-purchase message.
                 </Text>
-                <Button variant="primary" onClick={() => navigate("/listings")}>
+                <Button variant="primary" onClick={() => navigate("/app/stories")}>
                   Get Started
                 </Button>
               </BlockStack>

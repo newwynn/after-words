@@ -3,7 +3,7 @@
 client_id = "49baebefe8b60e47881980b264f3909d"
 name = "after-words"
 handle = "after-words"
-application_url = "https://pioneer-neither-mounted-commons.trycloudflare.com"
+application_url = "https://playing-commodities-sick-patent.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,9 +27,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://pioneer-neither-mounted-commons.trycloudflare.com/auth/callback",
-  "https://pioneer-neither-mounted-commons.trycloudflare.com/auth/shopify/callback",
-  "https://pioneer-neither-mounted-commons.trycloudflare.com/api/auth/callback"
+  "https://playing-commodities-sick-patent.trycloudflare.com/auth/callback",
+  "https://playing-commodities-sick-patent.trycloudflare.com/auth/shopify/callback",
+  "https://playing-commodities-sick-patent.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
