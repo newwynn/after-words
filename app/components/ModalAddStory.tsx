@@ -63,6 +63,8 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          productId: "unknown",
+          shop: window.location.host,
           productName,
           storyTitle,
           accountEmail,
@@ -92,7 +94,7 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
               {thumbnail ? (
                 <img
                   style={{
-                    height: "200px",
+                    height: "100%",
                     width: "100%",
                     objectFit: 'cover' as const,
                     display: 'block'
@@ -109,7 +111,6 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
                     allowMultiple={false}
                   >
                     <DropZone.FileUpload />
-                    
                   </DropZone>
                   {hasError && (
                     <Banner
@@ -145,17 +146,11 @@ const ModalAddStory: React.FC<ModalAddStoryProps> = ({ onShowResourcePicker, onC
                   autoComplete="off"
                 />
                 <TextField
-                  type="email"
-                  label="Account email"
-                  value={accountEmail}
-                  onChange={setAccountEmail}
-                  autoComplete="email"
-                />
-                <TextField
                   label="Story description"
                   value={storyDescription}
                   onChange={setStoryDescription}
                   autoComplete="off"
+                  multiline={4}
                 />
               </FormLayout>
             </LegacyCard>

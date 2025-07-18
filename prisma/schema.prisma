@@ -13,6 +13,17 @@ datasource db {
   url      = "file:dev.sqlite"
 }
 
+model Story {
+  id          Int      @id @default(autoincrement())
+  productId   String
+  shop        String
+  productName String
+  storyTitle  String
+  accountEmail String
+  thumbnail   String?
+  createdAt   DateTime @default(now())
+}
+
 model Session {
   id            String    @id
   shop          String

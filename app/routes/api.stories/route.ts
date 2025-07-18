@@ -1,33 +1,51 @@
-import { json } from "@remix-run/node";
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import { shopifyApp } from "@shopify/shopify-app-remix/server";
+import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
+import prisma from "../../db.server";
+
+
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return json({ ok: true });
+  const url = new URL(request.url);
+  const productId = url.searchParams.get("productId");
+  const shop = url.searchParams.get("shop");
+
+  if (!productId || !shop) {
+    return json({ success: false, error: "Missing productId or shop" }, { status: 400 });
+  }
+
+  try {
+    const story = await prisma.story.findFirst({ where: { productId, shop } });
+    return json({ success: true, data: story });
+  } catch (err) {
+    console.error("Error fetching story", err);
+    return json({ success: false, error: "Server Error" }, { status: 500 });
+  }
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const data = await request.json();
 
   try {
-    const { productName, storyTitle, accountEmail, thumbnail } = data;
-    
-    if (!productName || !storyTitle || !accountEmail || !thumbnail) {
+    const { productId, shop, productName, storyTitle, accountEmail, thumbnail } = data;
+
+    if (!productId || !shop || !productName || !storyTitle || !accountEmail) {
       throw new Error("Missing required fields");
     }
-   // get accesstoke, shop and productId
 
-   // add metafield to product
+    // Save story to DB
+    const story = await prisma.story.create({
+      data: {
+        productId,
+        shop,
+        productName,
+        storyTitle,
+        accountEmail,
+        thumbnail,
+      },
+    });
 
-   // add story to database
-
-   return json({ success: true, data });
-
-  } catch (error) {
-    return json({ success: false, error });
+    return json({ success: true, data: story });
+  } catch (error: any) {
+    console.error("Error saving story", error);
+    return json({ success: false, error: error.message ?? "Server Error" }, { status: 500 });
   }
-
-  console.log(data);
-  return json({ success: true, data });
 };
- 
