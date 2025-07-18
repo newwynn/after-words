@@ -1,22 +1,23 @@
 import React, { useCallback } from "react";
 import {
-  Card,
   Layout,
   Page,
   Text,
-  BlockStack,
   IndexTable,
   LegacyCard,
   useIndexResourceState,
   Badge,
   Button,
   InlineStack,
+  FooterHelp,
+  Link
 } from "@shopify/polaris";
 
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import ModalAddStory from "../components/ModalAddStory";
 import { authenticate } from "app/shopify.server";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData , useNavigate, useLocation } from "@remix-run/react";
+import { ExternalIcon } from "@shopify/polaris-icons";
 
 
 interface Story {
@@ -35,12 +36,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 }; 
 
 export default function Index() {
-  // Product Stories State
   const { shop } = useLoaderData<typeof loader>();
   console.log(shop);
   const [stories, setStories] = React.useState<Story[]>([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if we're on a child route
+  const isChildRoute = location.pathname !== '/app/stories';
 
-  // Add Story Handler
   const handleAddStory = (story: {
     productName: string;
     storyTitle: string;
@@ -120,14 +124,6 @@ export default function Index() {
     ),
   );
 
-
-const handleOpenModal = useCallback(() => {
-  const modal = document.getElementById('my-modal') as any;
-  if (modal && typeof modal.show === 'function') {
-    modal.show();
-  }
-}, []);
-
 const handleShowResourcePicker = useCallback(async () => {
   const selectedResources = await shopify?.resourcePicker({
     type: 'product',
@@ -149,56 +145,76 @@ const handleCloseModal = useCallback(() => {
 
   return (
     <>
-      <ModalAddStory
-        onShowResourcePicker={handleShowResourcePicker}
-        onClose={handleCloseModal}
-        onAddStory={handleAddStory}
-        shop={shop}
-      />
-      <Page
-        title="Your Product Stories"
-        subtitle="View, edit, and manage the origin stories shown after checkout for each product."
-        primaryAction={{
-          content: "Tell a Product’s Story",
-          onAction: handleOpenModal,
-        }}
-      >
-      <Layout>
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="200">
-              <Text variant="bodyMd" as="p">
-                AfterWords helps you build emotional connections with your
-                customers by sharing the story behind each product — right after
-                checkout.
-              </Text>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
+      {!isChildRoute && (
+        <>
+          <ModalAddStory
+            onShowResourcePicker={handleShowResourcePicker}
+            onClose={handleCloseModal}
+            onAddStory={handleAddStory}
+            shop={shop}
+          />
+          <Page
+            title="Your Product Stories"
+            subtitle="View, edit, and manage the origin stories shown after checkout for each product."
+            primaryAction={{
+              content: "Tell a Product's Story",
+              // onAction: handleOpenModal,
+              url: "/app/stories/new",
+            }}
+            secondaryActions={[{
+              content: "View Help Center",
+              onAction: () => {
+                window.open("https://help.shopify.com/manual", "_blank");
+              },
+              icon: ExternalIcon
+            }]}
+            backAction={{ content: "Stories", onAction: () => navigate("/app/stories") }}
+          >
+            <Layout>
+              {/* <Layout.Section>
+              <Card>
+                <BlockStack gap="200">
+                  <Text variant="bodyMd" as="p">
+                    AfterWords helps you build emotional connections with your
+                    customers by sharing the story behind each product — right after
+                    checkout.
+                  </Text>
+                </BlockStack>
+              </Card>
+            </Layout.Section> */}
 
-        <Layout.Section>
-          <LegacyCard>
-            <IndexTable
-              resourceName={resourceName}
-              itemCount={stories.length}
-              selectedItemsCount={
-                allResourcesSelected ? "All" : selectedResources.length
-              }
-              onSelectionChange={handleSelectionChange}
-              headings={[
-                { title: "Product" },
-                { title: "Story Title" },
-                { title: "Status" },
-                { title: "Last Updated" },
-                { title: "Actions" },
-              ]}
-            >
-              {rowMarkup}
-            </IndexTable>
-          </LegacyCard>
-        </Layout.Section>
-      </Layout>
-    </Page>
+              <Layout.Section>
+                <LegacyCard>
+                  <IndexTable
+                    resourceName={resourceName}
+                    itemCount={stories.length}
+                    selectedItemsCount={
+                      allResourcesSelected ? "All" : selectedResources.length
+                    }
+                    onSelectionChange={handleSelectionChange}
+                    headings={[
+                      { title: "Product" },
+                      { title: "Story Title" },
+                      { title: "Status" },
+                      { title: "Last Updated" },
+                      { title: "Actions" },
+                    ]}
+                  >
+                    {rowMarkup}
+                  </IndexTable>
+                </LegacyCard>
+              </Layout.Section>
+            </Layout>
+            <FooterHelp>
+              Learn more about{" "}
+              <Link url="https://help.shopify.com/manual" external>
+                AfterWords
+              </Link>
+            </FooterHelp>
+          </Page>
+        </>
+      )}
+      <Outlet />
     </>
   );
 }
