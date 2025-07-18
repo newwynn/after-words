@@ -1,5 +1,7 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import prisma from "../../db.server";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 
 
@@ -25,9 +27,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const data = await request.json();
 
   try {
-    const { productId, shop, productName, storyTitle, accountEmail, thumbnail } = data;
+    const { productId, shop, storyTitle, description, productName, accountEmail } = data;
 
-    if (!productId || !shop || !productName || !storyTitle || !accountEmail) {
+    
+
+    if (!productId || !shop || !storyTitle || !description) {
       throw new Error("Missing required fields");
     }
 
@@ -36,10 +40,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       data: {
         productId,
         shop,
-        productName,
         storyTitle,
+        description,
+        productName,
         accountEmail,
-        thumbnail,
       },
     });
 

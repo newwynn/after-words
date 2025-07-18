@@ -14,6 +14,9 @@ import {
 } from "@shopify/polaris";
 
 import ModalAddStory from "../components/ModalAddStory";
+import { authenticate } from "app/shopify.server";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
 
 interface Story {
@@ -26,8 +29,15 @@ interface Story {
   lastUpdated: string;
 }
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const {session} = await authenticate.admin(request);
+  return { shop: session.shop };
+}; 
+
 export default function Index() {
   // Product Stories State
+  const { shop } = useLoaderData<typeof loader>();
+  console.log(shop);
   const [stories, setStories] = React.useState<Story[]>([]);
 
   // Add Story Handler
@@ -143,6 +153,7 @@ const handleCloseModal = useCallback(() => {
         onShowResourcePicker={handleShowResourcePicker}
         onClose={handleCloseModal}
         onAddStory={handleAddStory}
+        shop={shop}
       />
       <Page
         title="Your Product Stories"
