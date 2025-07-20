@@ -13,6 +13,7 @@ export type Product = {
   id: string;
   title: string;
   handle?: string;
+  vendor?: string;
   images?: ProductImage[];
   variants?: ProductVariant[];
   descriptionHtml?: string;

@@ -39,6 +39,7 @@ export default function NewStoryPage() {
       id: raw.id,
       title: raw.title,
       handle: raw.handle,
+      vendor: raw.vendor, // Ensure vendor is captured for API payload
       images: raw.images?.map((img: any) => ({ url: img.url || img.src })),
       variants: raw.variants?.map((v: any) => ({ price: v.price })),
       descriptionHtml: raw.descriptionHtml,
@@ -48,12 +49,14 @@ export default function NewStoryPage() {
   // Product selection handlers
   const handleProductBrowse = useCallback(async () => {
     const selected = await shopify?.resourcePicker({ type: "product", multiple: true });
+    console.log("Selected Products:", selected);
     if (selected && Array.isArray(selected)) {
       setSelectedProducts(selected.map(normalizeProduct));
     }
   }, [shopify]);
   const handleProductSearch = useCallback(async () => {
     const selected = await shopify?.resourcePicker({ type: "product", multiple: true });
+    console.log("Selected Products:", selected);
     if (selected && Array.isArray(selected)) {
       setSelectedProducts(selected.map(normalizeProduct));
     }
@@ -97,7 +100,28 @@ export default function NewStoryPage() {
         primaryAction={{
           content: "Save",
           onAction: () => {
-            console.log("Story Payload:", storyPayload);
+            // TODO: Replace with actual shop value from context/session
+            const shop = "TODO_SHOP_DOMAIN";
+            const selectedProduct = selectedProducts[0];
+            const payload = {
+              shop,
+              storyTitle: storyPayload.title,
+              description: storyPayload.content,
+              buttonLabel: storyPayload.buttonLabel,
+              buttonLink: storyPayload.buttonLink,
+              visibility: storyPayload.visibility,
+              image: storyPayload.image,
+              video: storyPayload.video,
+              product: selectedProduct
+                ? {
+                    productId: selectedProduct.id,
+                    productHandle: selectedProduct.handle,
+                    productTitle: selectedProduct.title,
+                    vendor: selectedProduct.vendor || "",
+                  }
+                : null,
+            };
+            console.log("Formatted API Payload:", payload);
           },
         }}
         secondaryActions={[

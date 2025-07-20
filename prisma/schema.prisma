@@ -15,13 +15,16 @@ datasource db {
 
 model Story {
   id          Int      @id @default(autoincrement())
-  productId   String
+
   shop        String
-  productName String?
   storyTitle  String
   description String
-  accountEmail String?
-  thumbnail   String?
+  buttonLabel String?
+  buttonLink  String?
+  visibility  String @default("Active")
+  image       String?
+  video       String?
+  product     Json     // Stores productId, productHandle, productTitle, vendor as a JSON object
   createdAt   DateTime @default(now())
 }
 

@@ -3,17 +3,52 @@ import prisma from "../../../utils/prisma.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
-    const { productId, shop, storyTitle, description } = await request.json();
+    const {
+      shop,
+      storyTitle,
+      description,
+      buttonLabel,
+      buttonLink,
+      visibility,
+      image,
+      video,
+      product
+    } = await request.json();
 
-    if (!productId || !shop || !storyTitle || !description) {
+    // Validate required fields
+    if (!shop || !storyTitle || !description || !product) {
       return json(
-        { success: false, error: "Missing required fields: productId, shop, storyTitle, description" },
+        { success: false, error: "Missing required fields: shop, storyTitle, description, product" },
         { status: 400 }
       );
     }
 
-    const story = await (prisma as any).story.create({
-      data: { productId, shop, storyTitle, description },
+    // Validate product object
+    const { productId, productHandle, productTitle, vendor } = product || {};
+    if (!productId || !productHandle || !productTitle) {
+      return json(
+        { success: false, error: "Missing required product fields: productId, productHandle, productTitle" },
+        { status: 400 }
+      );
+    }
+
+    const story = await prisma.story.create({
+      data: {
+        shop,
+        storyTitle,
+        description,
+        buttonLabel,
+        buttonLink,
+        visibility,
+        image,
+        video,
+        product: {
+          productId,
+          productHandle,
+          productTitle,
+          vendor: vendor || ""
+        }
+      },
     });
 
     return json({ success: true, data: story }, { status: 201 });
