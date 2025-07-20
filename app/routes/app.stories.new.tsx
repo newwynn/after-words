@@ -43,15 +43,30 @@ export default function NewStoryPage() {
       images: raw.images?.map((img: any) => ({ originalSrc: img.originalSrc || img.src })),
       variants: raw.variants?.map((v: any) => ({ price: v.price })),
       descriptionHtml: raw.descriptionHtml,
+      status: raw.status,
     };
+  }
+
+  // Handler to update story fields from selected product
+  function handleProductSelect(product: Product) {
+    setStoryPayload((prev) => ({
+      ...prev,
+      title: product.title || "",
+      content: product.descriptionHtml || "",
+      image: product.images && product.images[0]?.originalSrc ? product.images[0].originalSrc : "",
+      visibility: product.status !== "draft" ? "Inactive" : "Active",
+    }));
+    setSelectedProducts([product]);
   }
 
   // Product selection handlers
   const handleProductBrowse = useCallback(async () => {
     const selected = await shopify?.resourcePicker({ type: "product", multiple: true, filter: { variants: false } });
-    console.log("Selected Products:", selected);
-    if (selected && Array.isArray(selected)) {
-      setSelectedProducts(selected.map(normalizeProduct));
+    if (selected && selected.length) {
+      const normalizedProducts = selected.map(normalizeProduct);
+      setSelectedProducts(normalizedProducts);
+      // Set story fields from the first selected product
+      handleProductSelect(normalizedProducts[0]);
     }
   }, [shopify]);
   const handleProductSearch = useCallback(async () => {

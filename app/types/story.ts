@@ -13,11 +13,12 @@ export type ProductVariant = {
 export type Product = {
   id: string;
   title: string;
-  handle?: string;
+  handle: string;
   vendor?: string;
   images?: ProductImage[];
   variants?: ProductVariant[];
   descriptionHtml?: string;
+  status?: string; // Product publication status, e.g., 'draft', 'active', etc.
 };
 
 export type StoryPayload = {
