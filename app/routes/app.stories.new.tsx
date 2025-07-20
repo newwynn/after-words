@@ -2,39 +2,71 @@ import React, { useState, useCallback } from "react";
 import {
   Page,
   Layout,
-  Card,
-  FormLayout,
-  TextField,
-  RadioButton,
-  LegacyStack,
-  Text,
   BlockStack,
+  PageActions,
 } from "@shopify/polaris";
 import { useNavigate } from "@remix-run/react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 
-export default function Index() {
-  // states
+import ProductPicker from "../components/stories/ProductPicker";
+import SelectedProductsList from "../components/stories/SelectedProductsList";
+import StoryFormFields from "../components/stories/StoryFormFields";
+import StoryMediaFields from "../components/stories/StoryMediaFields";
+import { StoryPayload } from "app/types/story";
+import VisibilitySelector from "../components/stories/VisibilitySelector";
+import StoryButtonFields from "../components/stories/StoryButtonFields";
+import type { Product } from "app/types/story";
+// import type { Product, StoryPayload } from "../../types/story";
+
+
+export default function NewStoryPage() {
   const navigate = useNavigate();
   const shopify = useAppBridge();
-  const [value, setValue] = useState<string>("Active");
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [storyPayload, setStoryPayload] = useState<StoryPayload>({
+    title: "",
+    content: "",
+    image: "",
+    video: "",
+    buttonLabel: "",
+    buttonLink: "",
+    visibility: "Active",
+  });
 
-  const handleResourcePicker = useCallback(async () => {
-    const selectedResources = shopify?.resourcePicker({
-      type: "product",
-      multiple: true,
-    });
+  // Normalize product shape from picker
+  function normalizeProduct(raw: any): Product {
+    return {
+      id: raw.id,
+      title: raw.title,
+      handle: raw.handle,
+      images: raw.images?.map((img: any) => ({ url: img.url || img.src })),
+      variants: raw.variants?.map((v: any) => ({ price: v.price })),
+      descriptionHtml: raw.descriptionHtml,
+    };
+  }
 
-    if (selectedResources) {
-      console.log("Selected Resources:", selectedResources);
+  // Product selection handlers
+  const handleProductBrowse = useCallback(async () => {
+    const selected = await shopify?.resourcePicker({ type: "product", multiple: true });
+    if (selected && Array.isArray(selected)) {
+      setSelectedProducts(selected.map(normalizeProduct));
+    }
+  }, [shopify]);
+  const handleProductSearch = useCallback(async () => {
+    const selected = await shopify?.resourcePicker({ type: "product", multiple: true });
+    if (selected && Array.isArray(selected)) {
+      setSelectedProducts(selected.map(normalizeProduct));
     }
   }, [shopify]);
 
-  // callbacks
-  const handleChange = useCallback(
-    (_: boolean, newValue: string) => setValue(newValue),
-    [],
-  );
+  // Story payload field handler
+  const handleStoryPayloadChange = (field: keyof StoryPayload, value: string) => {
+    setStoryPayload((prev: StoryPayload) => ({ ...prev, [field]: value }));
+  };
+  // Visibility handler
+  const handleVisibilityChange = (value: StoryPayload["visibility"]) => {
+    setStoryPayload((prev: StoryPayload) => ({ ...prev, visibility: value }));
+  };
 
   return (
     <Page
@@ -48,97 +80,34 @@ export default function Index() {
       <Layout>
         <Layout.Section>
           <BlockStack gap="200">
-          <Card>
-            <FormLayout>
-              <TextField
-                label="Story Title"
-                onChange={() => {}}
-                autoComplete="off"
-                placeholder="e.g: My Product Story"
-              />
-              <TextField
-                type="email"
-                label="Story Content"
-                onChange={() => {}}
-                autoComplete="email"
-                multiline={8}
-              />
-            </FormLayout>
-          </Card>
-          <Card>
-            <FormLayout>
-              <TextField
-                label="Story Image"
-                onChange={() => {}}
-                autoComplete="off"
-                placeholder="eg: https://example.com/image.jpg"
-              />
-              <TextField
-                type="email"
-                label="Story Video"
-                onChange={() => {}}
-                autoComplete="email"
-                placeholder="eg: https://example.com/video.mp4"
-              />
-            </FormLayout>
-          </Card>
+            <ProductPicker onSearch={handleProductSearch} onBrowse={handleProductBrowse} />
+            <SelectedProductsList products={selectedProducts} />
+            <StoryFormFields storyPayload={storyPayload} onFieldChange={handleStoryPayloadChange} />
+            <StoryMediaFields storyPayload={storyPayload} onFieldChange={handleStoryPayloadChange} />
           </BlockStack>
-          </Layout.Section>
+        </Layout.Section>
         <Layout.Section variant="oneThird">
           <BlockStack gap="200">
-            <Card>
-              <BlockStack gap="200">
-                <Text variant="headingMd" as="h6">
-                  Visibility
-                </Text>
-                <LegacyStack vertical>
-                  <RadioButton
-                    label="Active"
-                    helpText="Story will be visible to customers."
-                    checked={value === "Active"}
-                    id="Active"
-                    name="accounts"
-                    onChange={handleChange}
-                  />
-                  <RadioButton
-                    label="Inactive"
-                    helpText="Story will not be visible to customers."
-                    id="Inactive"
-                    name="accounts"
-                    checked={value === "Inactive"}
-                    onChange={handleChange}
-                  />
-                </LegacyStack>
-              </BlockStack>
-            </Card>
-            <Card>
-              <BlockStack gap="200">
-                <Text variant="headingMd" as="h6">
-                  Visibility
-                </Text>
-                <LegacyStack vertical>
-                  <RadioButton
-                    label="Active"
-                    helpText="Story will be visible to customers."
-                    checked={value === "Active"}
-                    id="Active"
-                    name="accounts"
-                    onChange={handleChange}
-                  />
-                  <RadioButton
-                    label="Inactive"
-                    helpText="Story will not be visible to customers."
-                    id="Inactive"
-                    name="accounts"
-                    checked={value === "Inactive"}
-                    onChange={handleChange}
-                  />
-                </LegacyStack>
-              </BlockStack>
-            </Card>
+            <VisibilitySelector visibility={storyPayload.visibility} onChange={handleVisibilityChange} />
+            <StoryButtonFields storyPayload={storyPayload} onFieldChange={handleStoryPayloadChange} />
           </BlockStack>
         </Layout.Section>
       </Layout>
+      <PageActions
+        primaryAction={{
+          content: "Save",
+          onAction: () => {
+            console.log("Story Payload:", storyPayload);
+          },
+        }}
+        secondaryActions={[
+          {
+            content: "Delete",
+            destructive: true,
+          },
+        ]}
+      />
     </Page>
   );
 }
+
