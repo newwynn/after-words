@@ -6,8 +6,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const { session } = await authenticate.admin(request);
     console.log("Session:", session);
+    const shop = session?.shop;
     const {
-      shop,
       storyTitle,
       description,
       buttonLabel,

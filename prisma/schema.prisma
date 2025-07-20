@@ -15,7 +15,6 @@ datasource db {
 
 model Story {
   id          Int      @id @default(autoincrement())
-
   shop        String
   storyTitle  String
   description String
