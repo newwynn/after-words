@@ -1,8 +1,11 @@
 import { json, type ActionFunctionArgs } from "@remix-run/node";
 import prisma from "../../../utils/prisma.server";
+import { authenticate } from "app/shopify.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
+    const { session } = await authenticate.admin(request);
+    console.log("Session:", session);
     const {
       shop,
       storyTitle,

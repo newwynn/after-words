@@ -121,7 +121,26 @@ export default function NewStoryPage() {
                   }
                 : null,
             };
-            console.log("Formatted API Payload:", payload);
+            // Send POST request to API
+            fetch("/api/stories", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            })
+              .then(async (res) => {
+                const data = await res.json();
+                if (res.ok && data.success) {
+                  alert("Story saved successfully!");
+                  // Optionally navigate or reset form here
+                } else {
+                  alert("Failed to save story: " + (data.error || "Unknown error"));
+                }
+              })
+              .catch((err) => {
+                alert("Error saving story: " + err.message);
+              });
           },
         }}
         secondaryActions={[
