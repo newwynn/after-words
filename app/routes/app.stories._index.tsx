@@ -13,10 +13,12 @@ import {
   Link
 } from "@shopify/polaris";
 
-import { NavigateFunction , useNavigate } from "@remix-run/react";
+import { NavigateFunction , useNavigate, useLoaderData } from "@remix-run/react";
 import { ExternalIcon } from "@shopify/polaris-icons";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticate } from "app/shopify.server";
+import prisma from "../../utils/prisma.server";
+import { json } from "@remix-run/node";
 
 interface Story {
   [key: string]: unknown;
@@ -29,14 +31,24 @@ interface Story {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const {session} = await authenticate.admin(request);
-  return { shop: session.shop };
+  const { session } = await authenticate.admin(request);
+  const shop = session?.shop;
+  if (!shop) {
+    return json({ success: false, error: "Missing shop in session" }, { status: 401 });
+  }
+  const allStories = await prisma.story.findMany({
+    where: { shop },
+    orderBy: { createdAt: "desc" },
+  });
+  return json({ success: true, allStories });
 }; 
 
 export default function StoriesIndex(): JSX.Element {
+  const { allStories } = useLoaderData<typeof loader>();
+  console.log("All Stories:", allStories)
 
   // states
-  let stories: Story[] = [];
+  let stories: Story[] = allStories || [];
   const navigate: NavigateFunction= useNavigate();
   const resourceName = { singular: "story", plural: "stories" };
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
