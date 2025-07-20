@@ -48,14 +48,14 @@ export default function NewStoryPage() {
 
   // Product selection handlers
   const handleProductBrowse = useCallback(async () => {
-    const selected = await shopify?.resourcePicker({ type: "product", multiple: true });
+    const selected = await shopify?.resourcePicker({ type: "product", multiple: true, filter: { variants: false } });
     console.log("Selected Products:", selected);
     if (selected && Array.isArray(selected)) {
       setSelectedProducts(selected.map(normalizeProduct));
     }
   }, [shopify]);
   const handleProductSearch = useCallback(async () => {
-    const selected = await shopify?.resourcePicker({ type: "product", multiple: true });
+    const selected = await shopify?.resourcePicker({ type: "product", multiple: true, filter: { variants: false } });
     console.log("Selected Products:", selected);
     if (selected && Array.isArray(selected)) {
       setSelectedProducts(selected.map(normalizeProduct));

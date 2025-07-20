@@ -6,20 +6,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const { session } = await authenticate.admin(request);
     console.log("Session:", session);
-    const shop = session?.shop;
-    const {
-      storyTitle,
-      description,
-      buttonLabel,
-      buttonLink,
-      visibility,
-      image,
-      video,
-      product
-    } = await request.json();
+    const shop = session?.shop; 
+    console.log("Shop:", shop);
+    const payload = await request.json();
 
     // Validate required fields
-    if (!shop || !storyTitle || !description || !product) {
+    if (!shop || !payload?.storyTitle || !payload?.description || !payload?.product) {
       return json(
         { success: false, error: "Missing required fields: shop, storyTitle, description, product" },
         { status: 400 }
@@ -27,7 +19,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     // Validate product object
-    const { productId, productHandle, productTitle, vendor } = product || {};
+    const { productId, productHandle, productTitle, vendor } = payload?.product || {};
     if (!productId || !productHandle || !productTitle) {
       return json(
         { success: false, error: "Missing required product fields: productId, productHandle, productTitle" },
@@ -38,21 +30,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const story = await prisma.story.create({
       data: {
         shop,
-        storyTitle,
-        description,
-        buttonLabel,
-        buttonLink,
-        visibility,
-        image,
-        video,
+        storyTitle: payload?.storyTitle || "",
+        description: payload?.description || "",
+        buttonLabel: payload?.buttonLabel || "",
+        buttonLink: payload?.buttonLink || "",
+        visibility: payload?.visibility || "",
+        image: payload?.image || "",
+        video: payload?.video || "",
         product: {
-          productId,
-          productHandle,
-          productTitle,
+          productId: productId || "",
+          productHandle: productHandle || "",
+          productTitle: productTitle || "",
           vendor: vendor || ""
         }
       },
     });
+    console.log("Story saved");
 
     return json({ success: true, data: story }, { status: 201 });
   } catch (error: any) {
