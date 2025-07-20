@@ -11,11 +11,24 @@ import {
   BlockStack,
 } from "@shopify/polaris";
 import { useNavigate } from "@remix-run/react";
+import { useAppBridge } from "@shopify/app-bridge-react";
 
 export default function Index() {
   // states
   const navigate = useNavigate();
+  const shopify = useAppBridge();
   const [value, setValue] = useState<string>("Active");
+
+  const handleResourcePicker = useCallback(async () => {
+    const selectedResources = shopify?.resourcePicker({
+      type: "product",
+      multiple: true,
+    });
+
+    if (selectedResources) {
+      console.log("Selected Resources:", selectedResources);
+    }
+  }, [shopify]);
 
   // callbacks
   const handleChange = useCallback(
@@ -52,31 +65,58 @@ export default function Index() {
           </Card>
         </Layout.Section>
         <Layout.Section variant="oneThird">
-          <Card>
-            <BlockStack gap="200">
-              <Text variant="headingMd" as="h6">
-                Visibility
-              </Text>
-              <LegacyStack vertical>
-                <RadioButton
-                  label="Active"
-                  helpText="Story will be visible to customers."
-                  checked={value === "Active"}
-                  id="Active"
-                  name="accounts"
-                  onChange={handleChange}
-                />
-                <RadioButton
-                  label="Inactive"
-                  helpText="Story will not be visible to customers."
-                  id="Inactive"
-                  name="accounts"
-                  checked={value === "Inactive"}
-                  onChange={handleChange}
-                />
-              </LegacyStack>
-            </BlockStack>
-          </Card>
+          <BlockStack gap="200">
+            <Card>
+              <BlockStack gap="200">
+                <Text variant="headingMd" as="h6">
+                  Visibility
+                </Text>
+                <LegacyStack vertical>
+                  <RadioButton
+                    label="Active"
+                    helpText="Story will be visible to customers."
+                    checked={value === "Active"}
+                    id="Active"
+                    name="accounts"
+                    onChange={handleChange}
+                  />
+                  <RadioButton
+                    label="Inactive"
+                    helpText="Story will not be visible to customers."
+                    id="Inactive"
+                    name="accounts"
+                    checked={value === "Inactive"}
+                    onChange={handleChange}
+                  />
+                </LegacyStack>
+              </BlockStack>
+            </Card>
+            <Card>
+              <BlockStack gap="200">
+                <Text variant="headingMd" as="h6">
+                  Visibility
+                </Text>
+                <LegacyStack vertical>
+                  <RadioButton
+                    label="Active"
+                    helpText="Story will be visible to customers."
+                    checked={value === "Active"}
+                    id="Active"
+                    name="accounts"
+                    onChange={handleChange}
+                  />
+                  <RadioButton
+                    label="Inactive"
+                    helpText="Story will not be visible to customers."
+                    id="Inactive"
+                    name="accounts"
+                    checked={value === "Inactive"}
+                    onChange={handleChange}
+                  />
+                </LegacyStack>
+              </BlockStack>
+            </Card>
+          </BlockStack>
         </Layout.Section>
       </Layout>
     </Page>

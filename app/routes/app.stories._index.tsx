@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import {
   Layout,
   Page,
@@ -13,8 +13,7 @@ import {
   Link
 } from "@shopify/polaris";
 
-import ModalAddStory from "../components/ModalAddStory";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { NavigateFunction , useNavigate } from "@remix-run/react";
 import { ExternalIcon } from "@shopify/polaris-icons";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticate } from "app/shopify.server";
@@ -34,46 +33,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return { shop: session.shop };
 }; 
 
-export default function StoriesIndex() {
-  const { shop } = useLoaderData<typeof loader>();
-  console.log(shop);
-  const [stories, setStories] = React.useState<Story[]>([]);
-  const navigate = useNavigate();
+export default function StoriesIndex(): JSX.Element {
 
-  const handleAddStory = (story: {
-    productName: string;
-    storyTitle: string;
-    accountEmail: string;
-    thumbnail?: string;
-  }) => {
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-    setStories(prev => [
-      ...prev,
-      {
-        id: `prod_${Date.now()}`,
-        productName: story.productName,
-        thumbnail: story.thumbnail || "🖼️",
-        storyTitle: story.storyTitle,
-        status: "added",
-        lastUpdated: formattedDate,
-      },
-    ]);
-  };
-
-  const resourceName = {
-    singular: "story",
-    plural: "stories",
-  };
-
+  // states
+  let stories: Story[] = [];
+  const navigate: NavigateFunction= useNavigate();
+  const resourceName = { singular: "story", plural: "stories" };
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(stories);
 
-  const rowMarkup = stories.map(
+  // callbacks
+  const rowMarkup: JSX.Element[] = stories.map(
     (
       { id, productName, thumbnail, storyTitle, status, lastUpdated },
       index,
@@ -119,32 +89,8 @@ export default function StoriesIndex() {
     ),
   );
 
-  const handleShowResourcePicker = useCallback(async () => {
-    const selectedResources = await shopify?.resourcePicker({
-      type: 'product',
-      multiple: true,
-    });
-
-    if (selectedResources) {
-      console.log('Selected Resources:', selectedResources);
-    }
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    const modal = document.getElementById('my-modal') as any;
-    if (modal && typeof modal.hide === 'function') {
-      modal.hide();
-    }
-  }, []);
-
   return (
     <>
-      <ModalAddStory
-        onShowResourcePicker={handleShowResourcePicker}
-        onClose={handleCloseModal}
-        onAddStory={handleAddStory}
-        shop={shop}
-      />
       <Page
         title="Your Product Stories"
         subtitle="View, edit, and manage the origin stories shown after checkout for each product."
