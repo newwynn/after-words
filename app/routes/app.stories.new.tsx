@@ -47,12 +47,14 @@ export default function Index() {
     >
       <Layout>
         <Layout.Section>
+          <BlockStack gap="200">
           <Card>
             <FormLayout>
               <TextField
                 label="Story Title"
                 onChange={() => {}}
                 autoComplete="off"
+                placeholder="e.g: My Product Story"
               />
               <TextField
                 type="email"
@@ -63,7 +65,25 @@ export default function Index() {
               />
             </FormLayout>
           </Card>
-        </Layout.Section>
+          <Card>
+            <FormLayout>
+              <TextField
+                label="Story Image"
+                onChange={() => {}}
+                autoComplete="off"
+                placeholder="eg: https://example.com/image.jpg"
+              />
+              <TextField
+                type="email"
+                label="Story Video"
+                onChange={() => {}}
+                autoComplete="email"
+                placeholder="eg: https://example.com/video.mp4"
+              />
+            </FormLayout>
+          </Card>
+          </BlockStack>
+          </Layout.Section>
         <Layout.Section variant="oneThird">
           <BlockStack gap="200">
             <Card>
