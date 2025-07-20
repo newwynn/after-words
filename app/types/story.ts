@@ -3,6 +3,7 @@
 export type ProductImage = {
   url?: string;
   src?: string;
+  originalSrc?: string;
 };
 
 export type ProductVariant = {

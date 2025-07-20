@@ -39,8 +39,8 @@ export default function NewStoryPage() {
       id: raw.id,
       title: raw.title,
       handle: raw.handle,
-      vendor: raw.vendor, // Ensure vendor is captured for API payload
-      images: raw.images?.map((img: any) => ({ url: img.url || img.src })),
+      vendor: raw.vendor,
+      images: raw.images?.map((img: any) => ({ originalSrc: img.originalSrc || img.src })),
       variants: raw.variants?.map((v: any) => ({ price: v.price })),
       descriptionHtml: raw.descriptionHtml,
     };

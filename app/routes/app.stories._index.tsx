@@ -18,7 +18,6 @@ import { ExternalIcon } from "@shopify/polaris-icons";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticate } from "app/shopify.server";
 import prisma from "../../utils/prisma.server";
-import { json } from "@remix-run/node";
 
 interface Story {
   [key: string]: unknown;
@@ -34,25 +33,30 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const shop = session?.shop;
   if (!shop) {
-    return json({ success: false, error: "Missing shop in session" }, { status: 401 });
+    return { success: false, error: "Missing shop in session" };
   }
   const allStories = await prisma.story.findMany({
     where: { shop },
     orderBy: { createdAt: "desc" },
   });
-  return json({ success: true, allStories });
+  return { success: true, allStories };
 }; 
 
 export default function StoriesIndex(): JSX.Element {
-  const { allStories } = useLoaderData<typeof loader>();
-  console.log("All Stories:", allStories)
+  const loaderData = useLoaderData<{ success: boolean; error?: string; allStories?: Story[] }>();
+  const navigate: NavigateFunction = useNavigate();
 
-  // states
-  let stories: Story[] = allStories || [];
-  const navigate: NavigateFunction= useNavigate();
+  // Always call hooks first
+  const stories: Story[] = loaderData.success ? loaderData.allStories || [] : [];
   const resourceName = { singular: "story", plural: "stories" };
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(stories);
+
+  if (!loaderData.success) {
+    return <div>Error: {('error' in loaderData && loaderData.error) || 'Unknown error'}</div>;
+  }
+
+  console.log("All Stories:", stories);
 
   // callbacks
   const rowMarkup: JSX.Element[] = stories.map(

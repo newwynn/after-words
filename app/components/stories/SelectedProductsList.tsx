@@ -7,6 +7,7 @@ interface SelectedProductsListProps {
 }
 
 const SelectedProductsList: React.FC<SelectedProductsListProps> = ({ products }) => {
+  console.log("Selected Products Props: ", products);
   if (!products.length) return null;
   return (
     <Card>
@@ -15,22 +16,23 @@ const SelectedProductsList: React.FC<SelectedProductsListProps> = ({ products })
       </Text>
       <ResourceList
         resourceName={{ singular: "product", plural: "products" }}
-        items={products.map((product) => ({
+        items={products.map((product) => {
+         console.log("Selected Product From Map: ", product);
+         return {
           id: product.id,
           url: product.handle ? `/products/${product.handle}` : undefined,
-          avatarSource:
-            product.images && product.images.length > 0
-              ? product.images[0].url || product.images[0].src
-              : undefined,
+          avatarSource:product.images?.[0].originalSrc,
           name: product.title,
           price:
             product.variants && product.variants.length > 0
               ? product.variants[0].price
               : "",
           description: product.descriptionHtml,
-        }))}
+         }
+        })}
         renderItem={(item) => {
           const { id, url, avatarSource, name, price } = item;
+          // console.log("Selected Resource: ", item);
           return (
             <ResourceItem
               verticalAlignment="center"
