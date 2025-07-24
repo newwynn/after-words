@@ -10,7 +10,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             return json({ success: false, error: "Missing required parameters: productId and shop" }, { status: 400 });
         }
         const story = await prisma.story.findUnique({
-            where: { product: { productId }, shop },
+            where: { product: { productId: productId }, shop },
         });
         return json({ success: true, data: story }, { status: 200 });
     } catch (error: any) {
