@@ -40,14 +40,13 @@ import {
   const productImg = lineItems?.map((item) => item.product.image);
 
   const stories = await fetch(
-    `https://ur-diary-discusses-reserve.trycloudflare.com/api/stories?productId=${productIds.join(",")}&shop=${shop?.domain}`,
+    `https://podcasts-handle-operating-seem.trycloudflare.com/api/stories?productId=${productIds.join(",")}&shop=${shop?.domain}`,
     {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${inputData.token}`,
-        "Content-Type": "application/json"
-      }
-    }
+        "Content-Type": "application/json",
+      },
+    },
   );
   
   if (!stories.ok) {

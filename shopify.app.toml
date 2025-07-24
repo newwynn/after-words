@@ -3,7 +3,7 @@
 client_id = "49baebefe8b60e47881980b264f3909d"
 name = "after-words"
 handle = "after-words"
-application_url = "https://whilst-printed-experiences-ultimately.trycloudflare.com"
+application_url = "https://podcasts-handle-operating-seem.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,9 +27,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://whilst-printed-experiences-ultimately.trycloudflare.com/auth/callback",
-  "https://whilst-printed-experiences-ultimately.trycloudflare.com/auth/shopify/callback",
-  "https://whilst-printed-experiences-ultimately.trycloudflare.com/api/auth/callback"
+  "https://podcasts-handle-operating-seem.trycloudflare.com/auth/callback",
+  "https://podcasts-handle-operating-seem.trycloudflare.com/auth/shopify/callback",
+  "https://podcasts-handle-operating-seem.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

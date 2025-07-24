@@ -5,12 +5,9 @@ import { authenticate } from "app/shopify.server";
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const { session } = await authenticate.admin(request);
-    console.log("Session:", session);
     const shop = session?.shop; 
-    console.log("Shop:", shop);
     const payload = await request.json();
 
-    // Validate required fields
     if (!shop || !payload?.storyTitle || !payload?.description || !payload?.product) {
       return json(
         { success: false, error: "Missing required fields: shop, storyTitle, description, product" },
@@ -18,7 +15,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     }
 
-    // Validate product object
     const { productId, productHandle, productTitle, vendor } = payload?.product || {};
     if (!productId || !productHandle || !productTitle) {
       return json(
@@ -45,7 +41,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }
       },
     });
-    console.log("Story saved");
 
     return json({ success: true, data: story }, { status: 201 });
   } catch (error: any) {
