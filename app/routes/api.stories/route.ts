@@ -23,6 +23,37 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     }
 
+    // create a product metaobject instance for the story
+    const query = `
+    mutation {
+  metaobjectCreate(metaobject: {
+    type: "test",
+    fields: [
+      { key: "storyTitle", value: "The Journey Begins" },
+      { key: "storyDescription", value: "This product was inspired by..." },
+      { key: "imageLink", value: "https://cdn.shopify.com/your-image.jpg" },
+      { key: "videoLink", value: "https://youtube.com/your-video" },
+      { key: "buttonLink", value: "https://your-link.com" },
+      { key: "buttonText", value: "Learn More" }
+    ]
+  }) {
+    metaobject {
+      id
+      type
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+`;
+
+    const adminSession = await authenticate.admin(request);
+    const result = await  adminSession.admin.graphql(query);
+    console.log(result, "result");
+
     const story = await prisma.story.create({
       data: {
         shop,
